@@ -26,6 +26,13 @@
       <button type="submit" class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded text-white">Add</button>
     </form>
 
+    <!-- ✅ Step 9: Filter Buttons -->
+    <div class="flex justify-between mb-4 text-sm">
+      <button class="filter-btn px-3 py-1 rounded bg-blue-700" data-filter="all">All</button>
+      <button class="filter-btn px-3 py-1 rounded hover:bg-blue-600" data-filter="completed">Completed</button>
+      <button class="filter-btn px-3 py-1 rounded hover:bg-blue-600" data-filter="incomplete">Incomplete</button>
+    </div>
+
     <!-- Step 4: Task List -->
     <ul id="task-list" class="space-y-3"></ul>
   </div>
@@ -33,10 +40,12 @@
   <script>
     // Step 7: Load from localStorage
     let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+    let currentFilter = "all"; // ✅ Step 9: Filter state
 
     const form = document.getElementById("task-form");
     const input = document.getElementById("task-input");
     const taskList = document.getElementById("task-list");
+    const filterButtons = document.querySelectorAll(".filter-btn");
 
     // Step 5: Capture Input and Add Tasks
     form.addEventListener("submit", function (e) {
@@ -53,7 +62,16 @@
     // Step 6: Mark Tasks as Completed
     function renderTasks() {
       taskList.innerHTML = "";
-      tasks.forEach((task, index) => {
+
+      // ✅ Step 9: Filter logic
+      let filteredTasks = tasks;
+      if (currentFilter === "completed") {
+        filteredTasks = tasks.filter(task => task.completed);
+      } else if (currentFilter === "incomplete") {
+        filteredTasks = tasks.filter(task => !task.completed);
+      }
+
+      filteredTasks.forEach((task, index) => {
         const li = document.createElement("li");
         li.className = "flex justify-between items-center bg-gray-700 p-3 rounded-lg";
 
@@ -81,7 +99,6 @@
 
         // Step 8: Delete Button
         const deleteBtn = document.createElement("button");
-      deleteBtn.textContent = ' ';
         deleteBtn.textContent = "🗑️";
         deleteBtn.className = "text-red-400 hover:text-red-600";
         deleteBtn.addEventListener("click", () => {
@@ -99,6 +116,16 @@
     function saveTasks() {
       localStorage.setItem("tasks", JSON.stringify(tasks));
     }
+
+    // ✅ Step 9: Filter button events
+    filterButtons.forEach(button => {
+      button.addEventListener("click", () => {
+        currentFilter = button.getAttribute("data-filter");
+        filterButtons.forEach(btn => btn.classList.remove("bg-blue-700"));
+        button.classList.add("bg-blue-700");
+        renderTasks();
+      });
+    });
 
     // Step 4 + Step 7: Initial render
     renderTasks();
