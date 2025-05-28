@@ -2,113 +2,106 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>To-Do List App</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet" />
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+    }
+  </style>
 </head>
-<body class="bg-black min-h-screen flex items-center justify-center p-4">
-  <div class="bg-white p-6 rounded-2xl shadow-lg w-full max-w-md">
-    <h1 class="text-3xl font-bold mb-6 text-center text-blue-600">To-Do List</h1>
-    
-    <!--task button-->
-    <div id="task-form" class="mb-4">
-      <form id="add-task-form" class="flex flex-col sm:flex-row items-center gap-2">
-        <input 
-          type="text" 
-          id="task-input" 
-          placeholder="Enter a new task" 
-          class="flex-grow px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
-          required
-        />
-        <button 
-          type="submit"
-          class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md transition">
-          Add Task
-        </button>
-      </form>
-    </div>
+<body class="bg-gray-900 min-h-screen flex items-center justify-center p-6">
 
-    
-    <ul id="task-list" class="space-y-2"></ul>
+  <!-- Step 1: Basic HTML Structure -->
+  <div class="bg-gray-800 text-white p-6 rounded-xl w-full max-w-md shadow-lg">
+    <!-- Step 2: TailwindCSS used for styling -->
+    <h1 class="text-3xl font-bold mb-4 text-center text-blue-400">To-Do List</h1>
+
+    <!-- Step 3: Input + Add Button -->
+    <form id="task-form" class="flex gap-2 mb-4">
+      <input type="text" id="task-input" placeholder="Enter a new task" required
+        class="flex-grow px-4 py-2 rounded bg-gray-700 placeholder-gray-400 text-white focus:outline-none focus:ring-2 focus:ring-blue-400" />
+      <button type="submit" class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded text-white">Add</button>
+    </form>
+
+    <!-- Step 4: Task List -->
+    <ul id="task-list" class="space-y-3"></ul>
   </div>
 
-
-
-  <!--java script-->
   <script>
-    const taskForm = document.getElementById('add-task-form');
-    const taskInput = document.getElementById('task-input');
-    const taskList = document.getElementById('task-list');
-  
-    let tasks = [];
-  
-    // Load tasks on page load
-    window.addEventListener('DOMContentLoaded', loadTasks);
-  
-    taskForm.addEventListener('submit', function (e) {
+    // Step 7: Load from localStorage
+    let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+
+    const form = document.getElementById("task-form");
+    const input = document.getElementById("task-input");
+    const taskList = document.getElementById("task-list");
+
+    // Step 5: Capture Input and Add Tasks
+    form.addEventListener("submit", function (e) {
       e.preventDefault();
-      const taskText = taskInput.value.trim();
-      if (taskText === '') return;
-  
+      const taskText = input.value.trim();
+      if (taskText === "") return;
       const task = { text: taskText, completed: false };
       tasks.push(task);
-      addTaskToList(task);
       saveTasks();
-      taskInput.value = '';
+      renderTasks();
+      input.value = "";
     });
-  
-    function addTaskToList(task, save = true) {
-      const li = document.createElement('li');
-      li.className = 'flex items-center justify-between bg-gray-100 p-2 rounded-md shadow';
-  
-      // Left side
-      const leftDiv = document.createElement('div');
-      leftDiv.className = 'flex items-center gap-2';
-  
-      const checkbox = document.createElement('input');
-      checkbox.type = 'checkbox';
-      checkbox.className = 'form-checkbox h-5 w-5 text-blue-500';
-      checkbox.checked = task.completed;
-  
-      const span = document.createElement('span');
-      span.textContent = task.text;
-      span.className = 'text-gray-800 transition-all';
-  
-      if (task.completed) {
-        span.classList.add('line-through', 'text-gray-400');
-      }
-  
-      checkbox.addEventListener('change', function () {
-        task.completed = checkbox.checked;
-        span.classList.toggle('line-through');
-        span.classList.toggle('text-gray-400');
-        saveTasks(); // update saved status
+
+    // Step 6: Mark Tasks as Completed
+    function renderTasks() {
+      taskList.innerHTML = "";
+      tasks.forEach((task, index) => {
+        const li = document.createElement("li");
+        li.className = "flex justify-between items-center bg-gray-700 p-3 rounded-lg";
+
+        const label = document.createElement("label");
+        label.className = "flex items-center gap-3";
+
+        const checkbox = document.createElement("input");
+        checkbox.type = "checkbox";
+        checkbox.checked = task.completed;
+        checkbox.className = "h-5 w-5 text-blue-500";
+        checkbox.addEventListener("change", () => {
+          task.completed = checkbox.checked;
+          saveTasks();
+          renderTasks();
+        });
+
+        const span = document.createElement("span");
+        span.textContent = task.text;
+        if (task.completed) {
+          span.className = "line-through text-gray-400";
+        }
+
+        label.appendChild(checkbox);
+        label.appendChild(span);
+
+        // Step 8: Delete Button
+        const deleteBtn = document.createElement("button");
+      deleteBtn.textContent = ' ';
+        deleteBtn.textContent = "🗑️";
+        deleteBtn.className = "text-red-400 hover:text-red-600";
+        deleteBtn.addEventListener("click", () => {
+          tasks.splice(index, 1);
+          saveTasks();
+          renderTasks();
+        });
+
+        li.appendChild(label);
+        li.appendChild(deleteBtn);
+        taskList.appendChild(li);
       });
-  
-      leftDiv.appendChild(checkbox);
-      leftDiv.appendChild(span);
-  
-      const rightDiv = document.createElement('div'); // placeholder for delete button
-  
-      li.appendChild(leftDiv);
-      li.appendChild(rightDiv);
-      taskList.appendChild(li);
     }
-  
+
     function saveTasks() {
-      localStorage.setItem('tasks', JSON.stringify(tasks));
+      localStorage.setItem("tasks", JSON.stringify(tasks));
     }
-  
-    function loadTasks() {
-      const stored = localStorage.getItem('tasks');
-      if (stored) {
-        tasks = JSON.parse(stored);
-        tasks.forEach(task => addTaskToList(task, false));
-      }
-    }
+
+    // Step 4 + Step 7: Initial render
+    renderTasks();
   </script>
-  
-  
 </body>
 </html>
-
