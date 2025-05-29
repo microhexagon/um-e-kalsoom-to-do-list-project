@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>To-Do List App</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet" />
@@ -12,122 +12,117 @@
     }
   </style>
 </head>
-<body class="bg-gray-900 min-h-screen flex items-center justify-center p-6">
+<body class="bg-black min-h-screen flex items-center justify-center p-4">
+  <div class="w-full max-w-2xl bg-white shadow-md rounded-lg p-6">
+    <!-- Step 1 & 2: Heading with styling -->
+    <h1 class="text-2xl font-bold mb-4 text-center text-blue-600">To-Do List</h1>
 
-  <!-- Step 1: Basic HTML Structure -->
-  <div class="bg-gray-800 text-white p-6 rounded-xl w-full max-w-md shadow-lg">
-    <!-- Step 2: TailwindCSS used for styling -->
-    <h1 class="text-3xl font-bold mb-4 text-center text-blue-400">To-Do List</h1>
-
-    <!-- Step 3: Input + Add Button -->
-    <form id="task-form" class="flex gap-2 mb-4">
-      <input type="text" id="task-input" placeholder="Enter a new task" required
-        class="flex-grow px-4 py-2 rounded bg-gray-700 placeholder-gray-400 text-white focus:outline-none focus:ring-2 focus:ring-blue-400" />
-      <button type="submit" class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded text-white">Add</button>
-    </form>
-
-    <!-- Step 9: Filter Buttons -->
-    <div class="flex justify-between mb-4 text-sm">
-      <button class="filter-btn px-3 py-1 rounded bg-blue-700" data-filter="all">All</button>
-      <button class="filter-btn px-3 py-1 rounded hover:bg-blue-600" data-filter="completed">Completed</button>
-      <button class="filter-btn px-3 py-1 rounded hover:bg-blue-600" data-filter="incomplete">Incomplete</button>
+    <!-- Step 3: Input task and add button -->
+    <div class="flex flex-col sm:flex-row sm:items-center sm:space-x-2 space-y-2 sm:space-y-0 mb-4">
+      <input type="text" id="taskInput" placeholder="Add a new task..." class="flex-1 p-2 border rounded">
+      <select id="priorityInput" class="p-2 border rounded">
+        <option value="Low">Low</option>
+        <option value="Medium">Medium</option>
+        <option value="High">High</option>
+      </select>
+      <button id="addTaskBtn" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded">Add</button>
     </div>
 
-    <!-- Step 4: Task List -->
-    <ul id="task-list" class="space-y-3"></ul>
+    <!-- Step 10: Filter buttons -->
+    <div class="flex flex-wrap justify-center gap-2 mb-4">
+      <button id="filterAll" class="text-sm px-3 py-1 border rounded text-blue-600">All</button>
+      <button id="filterCompleted" class="text-sm px-3 py-1 border rounded text-blue-600">Completed</button>
+      <button id="filterIncomplete" class="text-sm px-3 py-1 border rounded text-blue-600">Incomplete</button>
+    </div>
+
+    <!-- Step 4: Task list container -->
+    <ul id="taskList" class="space-y-2"></ul>
   </div>
 
   <script>
-    // Step 7: Load from localStorage
-    let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
-    let currentFilter = "all"; //Step 9: Filter
+    // Step 7: Load tasks from localStorage
+    let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+    let currentFilter = 'all';
 
-    const form = document.getElementById("task-form");
-    const input = document.getElementById("task-input");
-    const taskList = document.getElementById("task-list");
-    const filterButtons = document.querySelectorAll(".filter-btn");
+    // DOM elements
+    const taskList = document.getElementById('taskList');
+    const taskInput = document.getElementById('taskInput');
+    const priorityInput = document.getElementById('priorityInput');
 
-    // Step 5: Capture Input and Add Tasks
-    form.addEventListener("submit", function (e) {
-      e.preventDefault();
-      const taskText = input.value.trim();
-      if (taskText === "") return;
-      const task = { text: taskText, completed: false };
-      tasks.push(task);
+    // Step 5: Add task
+    document.getElementById('addTaskBtn').addEventListener('click', () => {
+      const text = taskInput.value.trim();
+      const priority = priorityInput.value;
+      if (text === '') return;
+      tasks.push({ text, completed: false, priority });
       saveTasks();
       renderTasks();
-      input.value = "";
+      taskInput.value = '';
+      priorityInput.value = 'Low';
     });
 
-    // Step 6: Mark Tasks as Completed
-    function renderTasks() {
-      taskList.innerHTML = "";
+    // Step 9: Filter buttons
+    document.getElementById('filterAll').addEventListener('click', () => { currentFilter = 'all'; renderTasks(); });
+    document.getElementById('filterCompleted').addEventListener('click', () => { currentFilter = 'completed'; renderTasks(); });
+    document.getElementById('filterIncomplete').addEventListener('click', () => { currentFilter = 'incomplete'; renderTasks(); });
 
-      //  Step 9 Filter logic
+    // Step 7: Save tasks
+    function saveTasks() {
+      localStorage.setItem('tasks', JSON.stringify(tasks));
+    }
+
+    // Step 6, 8, 9, 10: Render tasks
+    function renderTasks() {
+      taskList.innerHTML = '';
       let filteredTasks = tasks;
-      if (currentFilter === "completed") {
+      if (currentFilter === 'completed') {
         filteredTasks = tasks.filter(task => task.completed);
-      } else if (currentFilter === "incomplete") {
+      } else if (currentFilter === 'incomplete') {
         filteredTasks = tasks.filter(task => !task.completed);
       }
-
+      filteredTasks.sort((a, b) => {
+        const priorityOrder = { High: 1, Medium: 2, Low: 3 };
+        return priorityOrder[a.priority] - priorityOrder[b.priority];
+      });
       filteredTasks.forEach((task, index) => {
-        const li = document.createElement("li");
-        li.className = "flex justify-between items-center bg-gray-700 p-3 rounded-lg";
+        const li = document.createElement('li');
+        li.className = 'flex flex-col sm:flex-row sm:justify-between sm:items-center bg-white p-3 rounded border';
 
-        const label = document.createElement("label");
-        label.className = "flex items-center gap-3";
+        const taskInfo = document.createElement('div');
+        taskInfo.className = `flex-1 ${task.completed ? 'line-through text-gray-400' : ''}`;
+        taskInfo.innerHTML = `<p>${task.text}</p><small class="text-xs text-gray-500">Priority: ${task.priority}</small>`;
 
-        const checkbox = document.createElement("input");
-        checkbox.type = "checkbox";
+        const controlPanel = document.createElement('div');
+        controlPanel.className = 'flex items-center mt-2 sm:mt-0 sm:ml-4';
+
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.className = 'h-4 w-4 text-blue-500 border-gray-300 rounded mr-2';
         checkbox.checked = task.completed;
-        checkbox.className = "h-5 w-5 text-blue-500";
-        checkbox.addEventListener("change", () => {
+        checkbox.addEventListener('change', () => {
           task.completed = checkbox.checked;
           saveTasks();
           renderTasks();
         });
 
-        const span = document.createElement("span");
-        span.textContent = task.text;
-        if (task.completed) {
-          span.className = "line-through text-gray-400";
-        }
-
-        label.appendChild(checkbox);
-        label.appendChild(span);
-
-        // Step 8: Delete Button
-        const deleteBtn = document.createElement("button");
-        deleteBtn.textContent = "🗑️";
-        deleteBtn.className = "text-red-400 hover:text-red-600";
-        deleteBtn.addEventListener("click", () => {
+        const deleteBtn = document.createElement('button');
+        deleteBtn.innerHTML = 'Delete';
+        deleteBtn.className = 'text-red-500 ml-2';
+        deleteBtn.addEventListener('click', () => {
           tasks.splice(index, 1);
           saveTasks();
           renderTasks();
         });
 
-        li.appendChild(label);
-        li.appendChild(deleteBtn);
+        controlPanel.appendChild(checkbox);
+        controlPanel.appendChild(deleteBtn);
+        li.appendChild(taskInfo);
+        li.appendChild(controlPanel);
         taskList.appendChild(li);
       });
     }
 
-    function saveTasks() {
-      localStorage.setItem("tasks", JSON.stringify(tasks));
-    }
-
-    // ✅ Step 9: Filter button events
-    filterButtons.forEach(button => {
-      button.addEventListener("click", () => {
-        currentFilter = button.getAttribute("data-filter");
-        filterButtons.forEach(btn => btn.classList.remove("bg-blue-700"));
-        button.classList.add("bg-blue-700");
-        renderTasks();
-      });
-    });
-
-    // Step 4 + Step 7: Initial render
+    // Step 4 & 7: Initial render
     renderTasks();
   </script>
 </body>
