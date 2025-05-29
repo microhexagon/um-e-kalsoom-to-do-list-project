@@ -2,128 +2,183 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>To-Do List App</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>To-Do List App - Dark Mode</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet" />
-  <style>
-    body {
-      font-family: 'Inter', sans-serif;
+  <script>
+    // Enable dark mode based on class strategy
+    tailwind.config = {
+      darkMode: 'class',
     }
-  </style>
+  </script>
 </head>
-<body class="bg-black min-h-screen flex items-center justify-center p-4">
-  <div class="w-full max-w-2xl bg-white shadow-md rounded-lg p-6">
-    <!-- Step 1 & 2: Heading with styling -->
-    <h1 class="text-2xl font-bold mb-4 text-center text-blue-600">To-Do List</h1>
+<body class="bg-gray-900 dark:bg-gray-900 min-h-screen flex items-center justify-center p-4 text-gray-300">
+  <div class="bg-gray-800 dark:bg-gray-800 p-6 rounded-lg shadow-md w-full max-w-md">
+    <h1 class="text-2xl font-bold mb-6 text-center text-white">To-Do List</h1>
 
-    <!-- Step 3: Input task and add button -->
-    <div class="flex flex-col sm:flex-row sm:items-center sm:space-x-2 space-y-2 sm:space-y-0 mb-4">
-      <input type="text" id="taskInput" placeholder="Add a new task..." class="flex-1 p-2 border rounded">
-      <select id="priorityInput" class="p-2 border rounded">
-        <option value="Low">Low</option>
-        <option value="Medium">Medium</option>
-        <option value="High">High</option>
-      </select>
-      <button id="addTaskBtn" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded">Add</button>
+    <!-- Input + Add button -->
+    <div class="flex mb-4">
+      <input
+        id="taskInput"
+        type="text"
+        placeholder="Add a new task..."
+        class="flex-grow p-2 border border-gray-600 rounded-l-md bg-gray-700 text-gray-200 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+      />
+      <button
+        onclick="addTask()"
+        class="bg-blue-600 text-white px-4 rounded-r-md hover:bg-blue-700 transition"
+      >
+        Add Task
+      </button>
     </div>
 
-    <!-- Step 10: Filter buttons -->
-    <div class="flex flex-wrap justify-center gap-2 mb-4">
-      <button id="filterAll" class="text-sm px-3 py-1 border rounded text-blue-600">All</button>
-      <button id="filterCompleted" class="text-sm px-3 py-1 border rounded text-blue-600">Completed</button>
-      <button id="filterIncomplete" class="text-sm px-3 py-1 border rounded text-blue-600">Incomplete</button>
+    <!-- Filter buttons -->
+    <div class="flex justify-center mb-4 space-x-3">
+      <button
+        class="filter-btn px-4 py-1 rounded border border-blue-500 text-blue-500 font-semibold"
+        data-filter="all"
+        onclick="setFilter('all')"
+        id="filter-all"
+      >
+        All
+      </button>
+      <button
+        class="filter-btn px-4 py-1 rounded border border-gray-600 text-gray-400 hover:border-blue-500 hover:text-blue-500"
+        data-filter="completed"
+        onclick="setFilter('completed')"
+        id="filter-completed"
+      >
+        Completed
+      </button>
+      <button
+        class="filter-btn px-4 py-1 rounded border border-gray-600 text-gray-400 hover:border-blue-500 hover:text-blue-500"
+        data-filter="incomplete"
+        onclick="setFilter('incomplete')"
+        id="filter-incomplete"
+      >
+        Incomplete
+      </button>
     </div>
 
-    <!-- Step 4: Task list container -->
-    <ul id="taskList" class="space-y-2"></ul>
+    <!-- Task list -->
+    <ul id="taskList" class="space-y-3">
+      <!-- Tasks will be appended here -->
+    </ul>
   </div>
 
   <script>
-    // Step 7: Load tasks from localStorage
-    let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
-    let currentFilter = 'all';
+    let tasks = [];
+    let currentFilter = "all";
 
-    // DOM elements
-    const taskList = document.getElementById('taskList');
-    const taskInput = document.getElementById('taskInput');
-    const priorityInput = document.getElementById('priorityInput');
-
-    // Step 5: Add task
-    document.getElementById('addTaskBtn').addEventListener('click', () => {
-      const text = taskInput.value.trim();
-      const priority = priorityInput.value;
-      if (text === '') return;
-      tasks.push({ text, completed: false, priority });
-      saveTasks();
-      renderTasks();
-      taskInput.value = '';
-      priorityInput.value = 'Low';
+    document.addEventListener("DOMContentLoaded", () => {
+      loadTasks();
+      setFilter(currentFilter);
     });
 
-    // Step 9: Filter buttons
-    document.getElementById('filterAll').addEventListener('click', () => { currentFilter = 'all'; renderTasks(); });
-    document.getElementById('filterCompleted').addEventListener('click', () => { currentFilter = 'completed'; renderTasks(); });
-    document.getElementById('filterIncomplete').addEventListener('click', () => { currentFilter = 'incomplete'; renderTasks(); });
+    function loadTasks() {
+      tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+    }
 
-    // Step 7: Save tasks
     function saveTasks() {
-      localStorage.setItem('tasks', JSON.stringify(tasks));
+      localStorage.setItem("tasks", JSON.stringify(tasks));
     }
 
-    // Step 6, 8, 9, 10: Render tasks
-    function renderTasks() {
-      taskList.innerHTML = '';
-      let filteredTasks = tasks;
-      if (currentFilter === 'completed') {
-        filteredTasks = tasks.filter(task => task.completed);
-      } else if (currentFilter === 'incomplete') {
-        filteredTasks = tasks.filter(task => !task.completed);
+    function createTaskElement(task, index) {
+      const li = document.createElement("li");
+      li.className = "flex items-center justify-between bg-gray-700 p-3 rounded shadow-sm";
+
+      const label = document.createElement("label");
+      label.className = "flex items-center space-x-3 cursor-pointer flex-grow text-gray-200";
+
+      const checkbox = document.createElement("input");
+      checkbox.type = "checkbox";
+      checkbox.className = "form-checkbox h-5 w-5 text-blue-500";
+      checkbox.checked = task.completed;
+      checkbox.addEventListener("change", () => {
+        tasks[index].completed = checkbox.checked;
+        saveTasks();
+        renderTasks();
+      });
+
+      const taskSpan = document.createElement("span");
+      taskSpan.textContent = task.text;
+      if (task.completed) {
+        taskSpan.classList.add("line-through", "text-gray-500");
       }
-      filteredTasks.sort((a, b) => {
-        const priorityOrder = { High: 1, Medium: 2, Low: 3 };
-        return priorityOrder[a.priority] - priorityOrder[b.priority];
+
+      label.appendChild(checkbox);
+      label.appendChild(taskSpan);
+
+      const deleteBtn = document.createElement("button");
+      deleteBtn.textContent = "✕";
+      deleteBtn.className = "text-red-400 hover:text-red-600 ml-4 font-bold";
+      deleteBtn.addEventListener("click", () => {
+        tasks.splice(index, 1);
+        saveTasks();
+        renderTasks();
       });
-      filteredTasks.forEach((task, index) => {
-        const li = document.createElement('li');
-        li.className = 'flex flex-col sm:flex-row sm:justify-between sm:items-center bg-white p-3 rounded border';
 
-        const taskInfo = document.createElement('div');
-        taskInfo.className = `flex-1 ${task.completed ? 'line-through text-gray-400' : ''}`;
-        taskInfo.innerHTML = `<p>${task.text}</p><small class="text-xs text-gray-500">Priority: ${task.priority}</small>`;
+      li.appendChild(label);
+      li.appendChild(deleteBtn);
 
-        const controlPanel = document.createElement('div');
-        controlPanel.className = 'flex items-center mt-2 sm:mt-0 sm:ml-4';
+      return li;
+    }
 
-        const checkbox = document.createElement('input');
-        checkbox.type = 'checkbox';
-        checkbox.className = 'h-4 w-4 text-blue-500 border-gray-300 rounded mr-2';
-        checkbox.checked = task.completed;
-        checkbox.addEventListener('change', () => {
-          task.completed = checkbox.checked;
-          saveTasks();
-          renderTasks();
-        });
+    function renderTasks() {
+      const taskList = document.getElementById("taskList");
+      taskList.innerHTML = "";
 
-        const deleteBtn = document.createElement('button');
-        deleteBtn.innerHTML = 'Delete';
-        deleteBtn.className = 'text-red-500 ml-2';
-        deleteBtn.addEventListener('click', () => {
-          tasks.splice(index, 1);
-          saveTasks();
-          renderTasks();
-        });
-
-        controlPanel.appendChild(checkbox);
-        controlPanel.appendChild(deleteBtn);
-        li.appendChild(taskInfo);
-        li.appendChild(controlPanel);
-        taskList.appendChild(li);
+      tasks.forEach((task, index) => {
+        if (
+          currentFilter === "all" ||
+          (currentFilter === "completed" && task.completed) ||
+          (currentFilter === "incomplete" && !task.completed)
+        ) {
+          const li = createTaskElement(task, index);
+          taskList.appendChild(li);
+        }
       });
     }
 
-    // Step 4 & 7: Initial render
-    renderTasks();
+    function addTask() {
+      const input = document.getElementById("taskInput");
+      const taskText = input.value.trim();
+      if (!taskText) return;
+
+      tasks.push({ text: taskText, completed: false });
+      saveTasks();
+      renderTasks();
+
+      input.value = "";
+      input.focus();
+    }
+
+    function setFilter(filter) {
+      currentFilter = filter;
+
+      // Update button styles
+      document.querySelectorAll(".filter-btn").forEach((btn) => {
+        if (btn.dataset.filter === filter) {
+          btn.classList.add(
+            "border-blue-500",
+            "text-blue-500",
+            "font-semibold"
+          );
+          btn.classList.remove("border-gray-600", "text-gray-400");
+        } else {
+          btn.classList.remove(
+            "border-blue-500",
+            "text-blue-500",
+            "font-semibold"
+          );
+          btn.classList.add("border-gray-600", "text-gray-400");
+        }
+      });
+
+      renderTasks();
+    }
   </script>
 </body>
 </html>
+
+
