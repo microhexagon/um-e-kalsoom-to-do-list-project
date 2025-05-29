@@ -3,39 +3,40 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>To-Do List App - Dark Mode</title>
+  <title>To-Do List App - Dark Mode & Responsive</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
-    // Enable dark mode based on class strategy
+    // Tailwind dark mode using class strategy
     tailwind.config = {
       darkMode: 'class',
     }
   </script>
 </head>
 <body class="bg-gray-900 dark:bg-gray-900 min-h-screen flex items-center justify-center p-4 text-gray-300">
-  <div class="bg-gray-800 dark:bg-gray-800 p-6 rounded-lg shadow-md w-full max-w-md">
+  <div class="bg-gray-800 dark:bg-gray-800 p-6 rounded-lg shadow-md w-full max-w-md
+              sm:p-8 sm:max-w-lg">
     <h1 class="text-2xl font-bold mb-6 text-center text-white">To-Do List</h1>
 
     <!-- Input + Add button -->
-    <div class="flex mb-4">
+    <div class="flex flex-col sm:flex-row mb-4 space-y-2 sm:space-y-0 sm:space-x-2">
       <input
         id="taskInput"
         type="text"
         placeholder="Add a new task..."
-        class="flex-grow p-2 border border-gray-600 rounded-l-md bg-gray-700 text-gray-200 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        class="flex-grow p-3 border border-gray-600 rounded-md bg-gray-700 text-gray-200 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
       />
       <button
         onclick="addTask()"
-        class="bg-blue-600 text-white px-4 rounded-r-md hover:bg-blue-700 transition"
+        class="bg-blue-600 text-white px-6 py-3 rounded-md hover:bg-blue-700 transition font-semibold"
       >
         Add Task
       </button>
     </div>
 
     <!-- Filter buttons -->
-    <div class="flex justify-center mb-4 space-x-3">
+    <div class="flex justify-center mb-4 space-x-2 flex-wrap">
       <button
-        class="filter-btn px-4 py-1 rounded border border-blue-500 text-blue-500 font-semibold"
+        class="filter-btn px-4 py-2 rounded border border-blue-500 text-blue-500 font-semibold"
         data-filter="all"
         onclick="setFilter('all')"
         id="filter-all"
@@ -43,7 +44,7 @@
         All
       </button>
       <button
-        class="filter-btn px-4 py-1 rounded border border-gray-600 text-gray-400 hover:border-blue-500 hover:text-blue-500"
+        class="filter-btn px-4 py-2 rounded border border-gray-600 text-gray-400 hover:border-blue-500 hover:text-blue-500"
         data-filter="completed"
         onclick="setFilter('completed')"
         id="filter-completed"
@@ -51,7 +52,7 @@
         Completed
       </button>
       <button
-        class="filter-btn px-4 py-1 rounded border border-gray-600 text-gray-400 hover:border-blue-500 hover:text-blue-500"
+        class="filter-btn px-4 py-2 rounded border border-gray-600 text-gray-400 hover:border-blue-500 hover:text-blue-500"
         data-filter="incomplete"
         onclick="setFilter('incomplete')"
         id="filter-incomplete"
@@ -180,5 +181,6 @@
   </script>
 </body>
 </html>
+
 
 
