@@ -1,160 +1,200 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" >
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>To-Do list App</title>
-<script src="https://cdn.tailwindcss.com"></script>
-<style>
-  body {
-    background-color: #fdf2f8; /* light pink background */
-  }
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>To-Do list with Dark Mode Toggle</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    // Enable dark mode class strategy in Tailwind config
+    tailwind.config = {
+      darkMode: 'class',
+    }
+  </script>
+  <style>
+    body {
+      background-color: #fdf2f8; /* fallback light pink */
+    }
+  </style>
 </head>
-<body class="min-h-screen flex items-center justify-center text-gray-800">
-  <div class="bg-white p-6 rounded-lg shadow w-full max-w-2xl">
-    <h1 class="text-2xl font-bold text-pink-600 text-center mb-6">To-Do List</h1>
+<body class="min-h-screen flex items-center justify-center text-gray-800 bg-pink-50 dark:bg-gray-900 dark:text-gray-300 transition-colors duration-300">
 
-    <!-- Updated Input section -->
+  <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow w-full max-w-2xl transition-colors duration-300">
+
+    <div class="flex justify-end mb-4">
+      <button id="theme-toggle" class="px-4 py-2 rounded bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200">
+        Toggle Mode
+      </button>
+    </div>
+
+    <h1 class="text-2xl font-bold text-pink-600 dark:text-pink-400 text-center mb-6">To-Do List</h1>
+
     <div class="flex flex-col sm:flex-row gap-2 mb-4">
-      <input type="text" id="taskInput" placeholder="Add a new task..." class="flex-1 p-2 border rounded mb-2 sm:mb-0">
-      <input type="date" id="dueDateInput" class="p-2 border rounded mb-2 sm:mb-0">
-      <select id="priorityInput" class="p-2 border rounded mb-2 sm:mb-0">
+      <input type="text" id="taskInput" placeholder="Add a new task..." class="flex-1 p-2 border rounded mb-2 sm:mb-0 border-pink-300 dark:border-pink-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200" />
+      <input type="date" id="dueDateInput" class="p-2 border rounded mb-2 sm:mb-0 border-pink-300 dark:border-pink-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200" />
+      <select id="priorityInput" class="p-2 border rounded mb-2 sm:mb-0 border-pink-300 dark:border-pink-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200">
         <option value="Low">Low</option>
         <option value="Medium">Medium</option>
         <option value="High">High</option>
       </select>
-      <button onclick="addTask()" class="bg-pink-500 hover:bg-pink-600 text-white px-4 py-2 rounded mt-2 sm:mt-0">Add Task</button>
+      <button onclick="addTask()" class="bg-pink-500 hover:bg-pink-600 dark:bg-pink-700 dark:hover:bg-pink-800 text-white px-4 py-2 rounded mt-2 sm:mt-0">Add Task</button>
     </div>
 
-    <!-- Filter buttons -->
     <div class="flex justify-center gap-2 mb-4 flex-wrap">
-      <button class="filter-btn border border-pink-400 text-pink-500 px-3 py-1 rounded text-sm" data-filter="all" onclick="setFilter('all')">All</button>
-      <button class="filter-btn border border-pink-400 text-pink-500 px-3 py-1 rounded text-sm" data-filter="completed" onclick="setFilter('completed')">Completed</button>
-      <button class="filter-btn border border-pink-400 text-pink-500 px-3 py-1 rounded text-sm" data-filter="incomplete" onclick="setFilter('incomplete')">Incomplete</button>
-      <button onclick="toggleSortOrder()" class="border border-yellow-400 text-yellow-500 px-3 py-1 rounded text-sm">Sort by Priority</button>
+      <button class="filter-btn border border-pink-400 text-pink-500 dark:border-pink-600 dark:text-pink-400 px-3 py-1 rounded text-sm" data-filter="all" onclick="setFilter('all')">All</button>
+      <button class="filter-btn border border-pink-400 text-pink-500 dark:border-pink-600 dark:text-pink-400 px-3 py-1 rounded text-sm" data-filter="completed" onclick="setFilter('completed')">Completed</button>
+      <button class="filter-btn border border-pink-400 text-pink-500 dark:border-pink-600 dark:text-pink-400 px-3 py-1 rounded text-sm" data-filter="incomplete" onclick="setFilter('incomplete')">Incomplete</button>
+      <button onclick="toggleSortOrder()" class="border border-yellow-400 text-yellow-500 dark:border-yellow-600 dark:text-yellow-400 px-3 py-1 rounded text-sm">Sort by Priority</button>
     </div>
 
-    <!-- Task list -->
     <ul id="taskList" class="space-y-2"></ul>
   </div>
 
-<script>
-  let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
-  let currentFilter = 'all';
-  let sortByPriority = false;
+  <script>
+    let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+    let currentFilter = 'all';
+    let sortByPriority = false;
 
-  function saveTasks() {
-    localStorage.setItem('tasks', JSON.stringify(tasks));
-  }
-
-  function addTask() {
-    const textInput = document.getElementById('taskInput');
-    const dueDateInput = document.getElementById('dueDateInput');
-    const priorityInput = document.getElementById('priorityInput');
-
-    const text = textInput.value.trim();
-    const dueDate = dueDateInput.value;
-    const priority = priorityInput.value;
-
-    if (text === '') return;
-
-    tasks.push({ text, dueDate, priority, completed: false });
-    saveTasks();
-    renderTasks();
-
-    textInput.value = '';
-    dueDateInput.value = '';
-    priorityInput.value = 'Low';
-    textInput.focus();
-  }
-
-  function setFilter(filter) {
-    currentFilter = filter;
-    document.querySelectorAll(".filter-btn").forEach(btn => {
-      if (btn.dataset.filter === filter) {
-        btn.classList.add("bg-pink-500", "text-white");
-      } else {
-        btn.classList.remove("bg-pink-500", "text-white");
-      }
-    });
-    renderTasks();
-  }
-
-  function toggleSortOrder() {
-    sortByPriority = !sortByPriority;
-    renderTasks();
-  }
-
-  function renderTasks() {
-    const taskList = document.getElementById('taskList');
-    taskList.innerHTML = '';
-
-    let displayTasks = tasks.filter(task => {
-      if (currentFilter === 'all') return true;
-      if (currentFilter === 'completed') return task.completed;
-      if (currentFilter === 'incomplete') return !task.completed;
-    });
-
-    if (sortByPriority) {
-      const priorityOrder = { High: 1, Medium: 2, Low: 3 };
-      displayTasks.sort((a, b) => priorityOrder[a.priority] - priorityOrder[b.priority]);
+    function saveTasks() {
+      localStorage.setItem('tasks', JSON.stringify(tasks));
     }
 
-    displayTasks.forEach((task, index) => {
-      const li = document.createElement('li');
-      li.className = 'flex justify-between items-center bg-pink-50 border border-pink-100 p-3 rounded';
+    function addTask() {
+      const textInput = document.getElementById('taskInput');
+      const dueDateInput = document.getElementById('dueDateInput');
+      const priorityInput = document.getElementById('priorityInput');
 
-      const label = document.createElement('label');
-      label.className = 'flex items-center gap-2 flex-1';
+      const text = textInput.value.trim();
+      const dueDate = dueDateInput.value;
+      const priority = priorityInput.value;
 
-      const checkbox = document.createElement('input');
-      checkbox.type = 'checkbox';
-      checkbox.checked = task.completed;
-      checkbox.className = 'accent-pink-500';
-      checkbox.addEventListener('change', () => {
-        task.completed = checkbox.checked;
-        saveTasks();
-        renderTasks();
+      if (text === '') return;
+
+      tasks.push({ text, dueDate, priority, completed: false });
+      saveTasks();
+      renderTasks();
+
+      textInput.value = '';
+      dueDateInput.value = '';
+      priorityInput.value = 'Low';
+      textInput.focus();
+    }
+
+    function setFilter(filter) {
+      currentFilter = filter;
+      document.querySelectorAll(".filter-btn").forEach(btn => {
+        if (btn.dataset.filter === filter) {
+          btn.classList.add("bg-pink-500", "text-white");
+        } else {
+          btn.classList.remove("bg-pink-500", "text-white");
+        }
+      });
+      renderTasks();
+    }
+
+    function toggleSortOrder() {
+      sortByPriority = !sortByPriority;
+      renderTasks();
+    }
+
+    function renderTasks() {
+      const taskList = document.getElementById('taskList');
+      taskList.innerHTML = '';
+
+      let displayTasks = tasks.filter(task => {
+        if (currentFilter === 'all') return true;
+        if (currentFilter === 'completed') return task.completed;
+        if (currentFilter === 'incomplete') return !task.completed;
       });
 
-      const details = document.createElement('div');
-      const taskText = document.createElement('p');
-      taskText.textContent = task.text;
-      if (task.completed) taskText.classList.add('line-through', 'text-gray-400');
+      if (sortByPriority) {
+        const priorityOrder = { High: 1, Medium: 2, Low: 3 };
+        displayTasks.sort((a, b) => priorityOrder[a.priority] - priorityOrder[b.priority]);
+      }
 
-      const meta = document.createElement('small');
-      meta.className = 'text-xs text-gray-500';
-      meta.textContent = `Due: ${task.dueDate || 'None'} | Priority: ${task.priority}`;
+      displayTasks.forEach((task, index) => {
+        const li = document.createElement('li');
+        li.className = 'flex justify-between items-center bg-pink-50 dark:bg-pink-900 border border-pink-100 dark:border-pink-700 p-3 rounded transition-colors duration-300';
 
-      details.appendChild(taskText);
-      details.appendChild(meta);
+        const label = document.createElement('label');
+        label.className = 'flex items-center gap-2 flex-1';
 
-      label.appendChild(checkbox);
-      label.appendChild(details);
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.checked = task.completed;
+        checkbox.className = 'accent-pink-500';
+        checkbox.addEventListener('change', () => {
+          task.completed = checkbox.checked;
+          saveTasks();
+          renderTasks();
+        });
 
-      const delBtn = document.createElement('button');
-      delBtn.textContent = '✕';
-      delBtn.className = 'text-pink-400 hover:text-pink-600 ml-2';
-      delBtn.addEventListener('click', () => {
-        tasks.splice(index, 1);
-        saveTasks();
-        renderTasks();
+        const details = document.createElement('div');
+        const taskText = document.createElement('p');
+        taskText.textContent = task.text;
+        if (task.completed) taskText.classList.add('line-through', 'text-gray-400', 'dark:text-gray-500');
+
+        const meta = document.createElement('small');
+        meta.className = 'text-xs text-gray-500 dark:text-gray-400';
+        meta.textContent = `Due: ${task.dueDate || 'None'} | Priority: ${task.priority}`;
+
+        details.appendChild(taskText);
+        details.appendChild(meta);
+
+        label.appendChild(checkbox);
+        label.appendChild(details);
+
+        const delBtn = document.createElement('button');
+        delBtn.textContent = '✕';
+        delBtn.className = 'text-pink-400 hover:text-pink-600 dark:text-pink-600 dark:hover:text-pink-400 ml-2 transition-colors duration-300';
+        delBtn.addEventListener('click', () => {
+          tasks.splice(index, 1);
+          saveTasks();
+          renderTasks();
+        });
+
+        li.appendChild(label);
+        li.appendChild(delBtn);
+
+        taskList.appendChild(li);
       });
+    }
 
-      li.appendChild(label);
-      li.appendChild(delBtn);
+    // Dark mode toggle functionality
+    const toggleBtn = document.getElementById('theme-toggle');
 
-      taskList.appendChild(li);
+    toggleBtn.addEventListener('click', () => {
+      document.documentElement.classList.toggle('dark');
+
+      // Save preference in localStorage
+      if (document.documentElement.classList.contains('dark')) {
+        localStorage.setItem('theme', 'dark');
+      } else {
+        localStorage.setItem('theme', 'light');
+      }
     });
-  }
 
-  document.addEventListener('DOMContentLoaded', () => {
-    renderTasks();
-  });
-</script>
+    // On page load, set theme from localStorage or system preference
+    window.addEventListener('DOMContentLoaded', () => {
+      const savedTheme = localStorage.getItem('theme');
+      if (savedTheme === 'dark') {
+        document.documentElement.classList.add('dark');
+      } else if (savedTheme === 'light') {
+        document.documentElement.classList.remove('dark');
+      } else {
+        // If no saved preference, set based on system preference
+        if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+          document.documentElement.classList.add('dark');
+        }
+      }
+
+      setFilter(currentFilter);
+      renderTasks();
+    });
+  </script>
 </body>
 </html>
+
 
 
 
