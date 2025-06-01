@@ -17,7 +17,6 @@
     <!-- Toggle button as icon -->
     <div class="flex justify-end mb-6">
       <button id="theme-toggle" class="p-2 rounded-full bg-pink-500 hover:bg-pink-600 dark:bg-pink-600 dark:hover:bg-pink-700 text-white shadow-lg transition-colors duration-300 focus:outline-none focus:ring-4 focus:ring-pink-300 dark:focus:ring-pink-700">
-        <!-- Sun-Moon icon SVG (Lucide) -->
         <svg id="theme-icon" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M12 3v1"></path>
           <path d="M12 20v1"></path>
@@ -160,6 +159,28 @@
       label.appendChild(checkbox);
       label.appendChild(details);
 
+      // Edit button
+      const editBtn = document.createElement('button');
+      editBtn.textContent = '✎';
+      editBtn.className = 'text-yellow-500 dark:text-yellow-400 hover:text-yellow-700 dark:hover:text-yellow-300 text-xl font-bold transition-colors duration-300 ml-4';
+      editBtn.addEventListener('click', () => {
+        const newText = prompt('Edit task:', task.text);
+        if (newText !== null && newText.trim() !== '') {
+          task.text = newText.trim();
+          const newDueDate = prompt('Edit due date (yyyy-mm-dd):', task.dueDate);
+          if (newDueDate !== null) {
+            task.dueDate = newDueDate;
+          }
+          const newPriority = prompt('Edit priority (Low, Medium, High):', task.priority);
+          if (newPriority !== null && ['Low', 'Medium', 'High'].includes(newPriority)) {
+            task.priority = newPriority;
+          }
+          saveTasks();
+          renderTasks();
+        }
+      });
+
+      // Delete button
       const delBtn = document.createElement('button');
       delBtn.textContent = '✕';
       delBtn.className = 'text-pink-600 dark:text-pink-400 hover:text-pink-800 dark:hover:text-pink-200 text-xl font-bold transition-colors duration-300 ml-4';
@@ -170,6 +191,7 @@
       });
 
       li.appendChild(label);
+      li.appendChild(editBtn);
       li.appendChild(delBtn);
       taskList.appendChild(li);
     });
@@ -202,6 +224,7 @@
 </script>
 </body>
 </html>
+
 
 
 
