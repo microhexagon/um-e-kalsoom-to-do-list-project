@@ -3,6 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <title>To-Do List</title>
+  
+  <!-- 2. Use TailwindCSS to style the app -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = { darkMode: 'class' };
@@ -11,7 +13,8 @@
 <body class="bg-pink-50 dark:bg-gray-900 text-gray-800 dark:text-gray-200 min-h-screen flex flex-col items-center py-10">
 
   <div class="w-full max-w-2xl">
-    <!-- Toggle theme button -->
+
+    <!-- (theme toggle) -->
     <div class="flex justify-end mb-6">
       <button id="theme-toggle" class="p-2 rounded-full bg-pink-500 hover:bg-pink-600 dark:bg-pink-600 dark:hover:bg-pink-700 text-white shadow-lg transition-colors duration-300 focus:outline-none focus:ring-4 focus:ring-pink-300 dark:focus:ring-pink-700">
         <svg id="theme-icon" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -28,23 +31,31 @@
       </button>
     </div>
 
+    <!-- 1. basic HTML structure for the app -->
     <h1 class="text-4xl font-extrabold text-center mb-8 bg-clip-text text-transparent bg-gradient-to-r from-pink-500 via-pink-600 to-pink-700 dark:from-pink-400 dark:via-pink-500 dark:to-pink-600">
       To-Do List
     </h1>
 
+    <!-- 3. Add an input field and "Add Task" button -->
     <div class="flex flex-col sm:flex-row gap-4 mb-6">
       <input type="text" id="taskInput" placeholder="Add a new task..." class="flex-1 p-3 rounded-xl border border-pink-300 focus:outline-none focus:ring-4 focus:ring-pink-300 dark:bg-gray-800 dark:border-pink-700 dark:focus:ring-pink-600 dark:text-gray-100 shadow-md transition" />
+      
+      <!-- 12. Add a due date feature -->
       <input type="date" id="dueDateInput" class="p-3 rounded-xl border border-pink-300 focus:outline-none focus:ring-4 focus:ring-pink-300 dark:bg-gray-800 dark:border-pink-700 dark:focus:ring-pink-600 dark:text-gray-100 shadow-md transition" />
+      
+      <!-- 12. Allow sorting tasks by priority -->
       <select id="priorityInput" class="p-3 rounded-xl border border-pink-300 focus:outline-none focus:ring-4 focus:ring-pink-300 dark:bg-gray-800 dark:border-pink-700 dark:focus:ring-pink-600 dark:text-gray-100 shadow-md transition">
         <option value="Low">Low Priority</option>
         <option value="Medium">Medium Priority</option>
         <option value="High">High Priority</option>
       </select>
+
       <button onclick="addTask()" class="bg-pink-500 hover:bg-pink-600 dark:bg-pink-700 dark:hover:bg-pink-800 text-white px-6 py-3 rounded-xl font-semibold shadow-lg transition-colors duration-300">
         Add Task
       </button>
     </div>
 
+    <!-- 10. Add a filter option  completed/incomplete tasks  -->
     <div class="flex justify-center gap-3 mb-8 flex-wrap">
       <button class="filter-btn px-5 py-2 rounded-full border-2 border-pink-400 text-pink-600 dark:border-pink-600 dark:text-pink-400 font-medium hover:bg-pink-100 dark:hover:bg-pink-800 transition" data-filter="all" onclick="setFilter('all')">All</button>
       <button class="filter-btn px-5 py-2 rounded-full border-2 border-pink-400 text-pink-600 dark:border-pink-600 dark:text-pink-400 font-medium hover:bg-pink-100 dark:hover:bg-pink-800 transition" data-filter="completed" onclick="setFilter('completed')">Completed</button>
@@ -52,10 +63,12 @@
       <button onclick="toggleSortOrder()" class="px-5 py-2 rounded-full border-2 border-yellow-400 text-yellow-500 dark:border-yellow-600 dark:text-yellow-400 font-medium hover:bg-yellow-100 dark:hover:bg-yellow-900 transition">Sort by Priority</button>
     </div>
 
+    <!-- 4. Display a list of tasks dynamically -->
     <ul id="taskList" class="space-y-4 max-h-[400px] overflow-y-auto"></ul>
   </div>
 
 <script>
+  // 7. Store tasks in local storage to persist data
   let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
   let currentFilter = 'all';
   let sortByPriority = false;
@@ -64,6 +77,7 @@
     localStorage.setItem('tasks', JSON.stringify(tasks));
   }
 
+  // 5. Capture user input and add tasks to the list
   function addTask() {
     const textInput = document.getElementById('taskInput');
     const dueDateInput = document.getElementById('dueDateInput');
@@ -97,11 +111,13 @@
     renderTasks();
   }
 
+  // 12. Sort tasks by priority if enabled
   function toggleSortOrder() {
     sortByPriority = !sortByPriority;
     renderTasks();
   }
 
+  // 4. Display a list of tasks dynamically
   function renderTasks() {
     const taskList = document.getElementById('taskList');
     taskList.innerHTML = '';
@@ -112,6 +128,7 @@
       if (currentFilter === 'incomplete') return !task.completed;
     });
 
+    // 12. Sort tasks by priority
     if (sortByPriority) {
       const priorityOrder = { High: 1, Medium: 2, Low: 3 };
       displayTasks.sort((a, b) => priorityOrder[a.priority] - priorityOrder[b.priority]);
@@ -124,6 +141,7 @@
       const label = document.createElement('label');
       label.className = 'flex items-center gap-4 flex-1';
 
+      // 6. Implement a feature to mark tasks as completed
       const checkbox = document.createElement('input');
       checkbox.type = 'checkbox';
       checkbox.checked = task.completed;
@@ -138,6 +156,8 @@
       const taskText = document.createElement('p');
       taskText.textContent = task.text;
       taskText.className = 'text-lg font-medium';
+      
+      // 9. Style completed tasks with a strikethrough effect
       if (task.completed) {
         taskText.classList.add('line-through', 'text-gray-400', 'dark:text-gray-500');
       }
@@ -152,18 +172,7 @@
       label.appendChild(checkbox);
       label.appendChild(details);
 
-      const editBtn = document.createElement('button');
-      editBtn.textContent = '✎';
-      editBtn.className = 'text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-200 text-xl font-bold ml-2 transition-colors duration-300';
-      editBtn.addEventListener('click', () => {
-        const newText = prompt('Edit task:', task.text);
-        if (newText !== null) {
-          task.text = newText.trim() || task.text;
-          saveTasks();
-          renderTasks();
-        }
-      });
-
+      // 8. Add delete button to each task
       const delBtn = document.createElement('button');
       delBtn.textContent = '✕';
       delBtn.className = 'text-pink-600 dark:text-pink-400 hover:text-pink-800 dark:hover:text-pink-200 text-xl font-bold transition-colors duration-300 ml-2';
@@ -174,12 +183,12 @@
       });
 
       li.appendChild(label);
-      li.appendChild(editBtn);
       li.appendChild(delBtn);
       taskList.appendChild(li);
     });
   }
 
+  // 2. Use TailwindCSS to style the app (theme toggle)
   const toggleBtn = document.getElementById('theme-toggle');
   toggleBtn.addEventListener('click', () => {
     document.documentElement.classList.toggle('dark');
@@ -190,6 +199,7 @@
     }
   });
 
+  // 11. Ensure mobile responsiveness 
   window.addEventListener('DOMContentLoaded', () => {
     const savedTheme = localStorage.getItem('theme');
     if (savedTheme === 'dark') {
@@ -203,7 +213,7 @@
     renderTasks();
     setFilter('all');
 
-    // Connect Enter key to add task
+    // 3. Also allow adding task via Enter key
     document.getElementById('taskInput').addEventListener('keydown', (e) => {
       if (e.key === 'Enter') {
         e.preventDefault();
@@ -214,6 +224,7 @@
 </script>
 </body>
 </html>
+
 
 
 
