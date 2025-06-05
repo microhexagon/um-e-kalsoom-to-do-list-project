@@ -12,7 +12,6 @@
 
   <div class="w-full max-w-2xl">
 
-    <!-- Toggle theme button -->
     <div class="flex justify-end mb-6">
       <button id="theme-toggle" class="p-2 rounded-full bg-pink-500 hover:bg-pink-600 dark:bg-pink-600 dark:hover:bg-pink-700 text-white shadow-lg transition-colors duration-300 focus:outline-none focus:ring-4 focus:ring-pink-300 dark:focus:ring-pink-700">
         <svg id="theme-icon" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -33,7 +32,6 @@
       To-Do List
     </h1>
 
-    <!-- Input section -->
     <div class="flex flex-col sm:flex-row gap-4 mb-6">
       <input type="text" id="taskInput" placeholder="Add a new task..." class="flex-1 p-3 rounded-xl border border-pink-300 focus:outline-none focus:ring-4 focus:ring-pink-300 dark:bg-gray-800 dark:border-pink-700 dark:focus:ring-pink-600 dark:text-gray-100 shadow-md transition" />
       <input type="date" id="dueDateInput" class="p-3 rounded-xl border border-pink-300 focus:outline-none focus:ring-4 focus:ring-pink-300 dark:bg-gray-800 dark:border-pink-700 dark:focus:ring-pink-600 dark:text-gray-100 shadow-md transition" />
@@ -47,7 +45,6 @@
       </button>
     </div>
 
-    <!-- Filters -->
     <div class="flex justify-center gap-3 mb-8 flex-wrap">
       <button class="filter-btn px-5 py-2 rounded-full border-2 border-pink-400 text-pink-600 dark:border-pink-600 dark:text-pink-400 font-medium hover:bg-pink-100 dark:hover:bg-pink-800 transition" data-filter="all" onclick="setFilter('all')">All</button>
       <button class="filter-btn px-5 py-2 rounded-full border-2 border-pink-400 text-pink-600 dark:border-pink-600 dark:text-pink-400 font-medium hover:bg-pink-100 dark:hover:bg-pink-800 transition" data-filter="completed" onclick="setFilter('completed')">Completed</button>
@@ -55,7 +52,6 @@
       <button onclick="toggleSortOrder()" class="px-5 py-2 rounded-full border-2 border-yellow-400 text-yellow-500 dark:border-yellow-600 dark:text-yellow-400 font-medium hover:bg-yellow-100 dark:hover:bg-yellow-900 transition">Sort by Priority</button>
     </div>
 
-    <!-- Task list -->
     <ul id="taskList" class="space-y-4 max-h-[400px] overflow-y-auto"></ul>
   </div>
 
@@ -83,10 +79,11 @@
     }
 
     tasks.push({ text, dueDate, priority, completed: false });
-    saveTasks();
-    renderTasks();
+    saveTasks();  
+    renderTasks(); 
 
     alert(`Task "${text}" has been added successfully!`);
+
     textInput.value = '';
     dueDateInput.value = '';
     priorityInput.value = 'Low';
@@ -160,7 +157,6 @@
       label.appendChild(checkbox);
       label.appendChild(details);
 
-      // Edit button
       const editBtn = document.createElement('button');
       editBtn.textContent = '✎';
       editBtn.className = 'text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-200 text-xl font-bold ml-2 transition-colors duration-300';
@@ -188,6 +184,13 @@
 
         editInput.focus();
 
+        editInput.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter') {
+            e.preventDefault();
+            saveBtn.click();
+          }
+        });
+
         saveBtn.addEventListener('click', () => {
           const newText = editInput.value.trim();
           if (newText !== '') {
@@ -204,7 +207,6 @@
         });
       });
 
-      // Delete button
       const delBtn = document.createElement('button');
       delBtn.textContent = '✕';
       delBtn.className = 'text-pink-600 dark:text-pink-400 hover:text-pink-800 dark:hover:text-pink-200 text-xl font-bold transition-colors duration-300 ml-2';
@@ -254,3 +256,4 @@
 </script>
 </body>
 </html>
+
